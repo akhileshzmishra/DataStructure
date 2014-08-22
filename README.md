@@ -30,6 +30,7 @@ See the table below.
 With careful deletion techniques, we can minimize the memory wastage (memory that is left unused due to regular bifurcation)
 
 Testing: 
+-------
 Testing has been done thoroughly for this data structure. The data structure would serve the purpose a linked list does but with faster operation time. However, if found not suitable for your specific purpose, please send me the detail at akhileshzmishra@gmail.com with purpose you are trying to use (not the actual business purpose) and error if any that is being caused. I will get back to you on this.
 
 2) TrieSet and TrieMap
@@ -37,6 +38,7 @@ Testing has been done thoroughly for this data structure. The data structure wou
 These are tries. If you know about them good. If you dont, please find them up on wiki. They are best used for map with string unique keys. However, here they are implemented as templates. So you can use any other key if you want. the operation cost is _O(l(Key)_ where l(Key) is the length of the key. In string, this is equal to string length. For integer, it can be bit size. (< 32 bits on a 32 bit machine)
 
 Testing: 
+-------
 Testing has been done thoroughly for this data structure. However, if found not suitable for your specific purpose, please send me the detail at akhileshzmishra@gmail.com with purpose you are trying to use (not the actual business purpose) and error if any that is being caused. I will get back to you on this.
 
 
@@ -49,4 +51,14 @@ When you have to search multiple times and/or m >> n, the first term is irreleva
 
 It has been implemented as template. You can use it with wchar_t or char or any other key deem fit.
 
+Testing: 
+--------
+Testing has been done thoroughly for this algorithm. However, if found not suitable for your specific purpose, please send me the detail at akhileshzmishra@gmail.com with purpose you are trying to use (not the actual business purpose) and error if any that is being caused. I will get back to you on this.
 
+
+Finally
+=======
+I would introduce other data structure (not linked list, vectors or trees) which are not easily available later.
+Keep me posted at akhileshzmishra@gmail.com
+
+Thank you
