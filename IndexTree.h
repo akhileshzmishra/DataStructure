@@ -7,6 +7,7 @@
 #include <queue>
 #ifdef __DEBUG_PRINT_INDEX_TREE_
 #include <iostream>
+#include <math.h>
 #endif
 
 using namespace std;
@@ -824,8 +825,8 @@ class CIndexTree
 public:
 	CIndexTree(int pocketSize, int Order):
     m_pHead(new _Node(pocketSize,true)),
-	m_iPocketSize(pocketSize),
-	m_iOrder(Order)
+	m_iPocketSize(pocketSize > 0? pocketSize: DefaultPocketSize),
+	m_iOrder(Order > 0? Order: DefaultPocketSize)
 	{
 	}
 
@@ -955,6 +956,8 @@ public:
 		int level = 0;
 		int elems = 1;
 		bool toContinue = true;
+		int leafNodes = 0;
+		int internalNodes = 0;
 		while(toContinue)
 		{
 			while(elems > 0)
@@ -962,6 +965,14 @@ public:
 				_Node* n = nq.front();
 				nq.pop();
 				elems--;
+				if(n->IsLeaf())
+				{
+					leafNodes++;
+				}
+				else
+				{
+					internalNodes++;
+				}
 				cout<<"+++++++++++++++++++++++"<<endl;
 				cout<<"Level : "<<level<<endl;
 				n->Print();
@@ -986,6 +997,23 @@ public:
 				break;
 			}
 		}
+		cout<<"Order = "<<m_iOrder<<" and PocketSize = "<<m_iPocketSize<<endl;
+		cout<<"Total Elements = "<<Size()<<endl;
+		cout<<"Total Leaf Nodes = "<<leafNodes<<endl;
+		double avdensity = (double)Size()/(double)leafNodes;
+		cout<<"Average Data density = "<<avdensity<<endl;
+		double avFill = ((avdensity/(double)m_iPocketSize))*100.0;
+		cout<<"Average Fill = "<< avFill<<endl;
+		cout<<"Wastage = "<<  (m_iPocketSize - avdensity)*leafNodes<<endl;
+		cout<<"Total internal Nodes = "<<internalNodes<<endl;
+
+		cout<<"________________________________________"<<endl;
+		int idealLeafNodes = Size()/m_iPocketSize;
+		cout<<"Ideally, the leaf nodes be = "<<idealLeafNodes<<endl;
+		double num = log(idealLeafNodes)/log(m_iOrder);
+		double pw = (pow(m_iOrder, num) - 1)/(m_iOrder - 1);
+		cout<<"Ideally, the internal nodes be = "<<(pw)<<endl;
+
 #endif
 	}
 
