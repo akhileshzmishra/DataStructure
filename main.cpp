@@ -11,19 +11,26 @@ void printMT(MT& mt)
 	cout<<"Printing...."<<endl;
 	cout<<"****************************************************"<<endl;
 	int* data;
+	int x = 0;
 	for(int i = 0; i < mt.Size(); i++)
 	{
 		if(mt.Value(i, data))
 		{
-			cout<<i<<" : "<<*data<<endl;
+			cout<<" [ "<<i<<" ] = "<<*data<<" , ";
 		}
 		else
 		{
-			cout<<i<<" : XX Not Found XX"<<endl;
+			cout<<" [ "<<i<<" ] = NF , ";
+		}
+		x++;
+		if(x == 6)
+		{
+			x = 0;
+			cout<<endl;
 		}
 	}
 
-	cout<<"Printing the structure"<<endl;
+	cout<<endl<<"Printing the structure"<<endl;
 	mt.Print();
 }
 
@@ -72,15 +79,15 @@ int main()
 {
 
 
-    int order = 4;
-    int pocketSize = 4;
+    int order = 16;
+    int pocketSize = 16;
     MT mt(pocketSize, order);
     const int pushbackSize = 50;
     int insertSize = 60;
     int deleteSize = 50;
     mt.Pushback(50);
 
-    for(int i = 0; i < 500; i++)
+    for(int i = 0; i < 1000; i++)
     {
     	int sizeNow = mt.Size();
     	cout<<"****************************************************"<<endl;
@@ -108,7 +115,7 @@ int main()
     	}
     	cout<<"Size now after operation :" <<mt.Size()<<endl;
     	int change = mt.Size() - sizeNow;
-    	cout<<"Change in strength "<<change<<endl;
+    	cout<<"Change in size "<<change<<endl;
     	if(((change == value) && (opType != 2)) || ((change == -value) && (opType == 2)))
     	{
     		cout<<"Best change BRAVOOOOOOOOOOOOOOOOOO"<<endl;
@@ -117,7 +124,6 @@ int main()
     	{
     		cout<<"Wanted to change by "<<value<<" but changed by "<<change<<endl;
     		cout<<"DISASTOR"<<endl;
-    		mt.Print();
     		break;
     	}
     	cout<<"****************************************************"<<endl<<endl<<endl;
