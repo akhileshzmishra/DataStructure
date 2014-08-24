@@ -1,5 +1,6 @@
 #include "IndexTree.h"
 #include "TrieMap.h"
+#include "TrieSet.h"
 #include <random>
 #include <iostream>
 #include <string.h>
@@ -200,10 +201,93 @@ void TestTrieMap()
 
 }
 
+void TestTrieSet()
+{
+	TTrieSet<char> Ts;
+	char Name[][30] =
+	{
+			"Akhilesh Mishra",
+			"Abhishek Mishra",
+			"Abhishek PAndey",
+			"Preeti",
+			"Ankita",
+			"Akhilesh Tiwari",
+			"Anuj kumar",
+			"Poonam Khatri",
+			"Pooja Majumdar",
+			"Pooja Manya",
+			"Abhinayak Guha",
+			"Akhnipushkar bhaskar",
+			"Aklaya Tunkshar",
+			"Olivia vishtra",
+			"Olka polka",
+			"Prakriti pandey",
+			"Proosanna das",
+			"Pradeep tikka",
+			"Praneeti pandey",
+			"Akhtawar shoota",
+			"Akhsindya vidharbha",
+			"Akhhinda kumar",
+			"Akkdimma majumdar",
+			"Akhilya khanna",
+			"Ponty Chaddha",
+			"Ponnu Sami",
+			"Piyush prakar"
+
+	};
+
+	int nameNum = 27;
+	cout<<"****************************************************"<<endl;
+	cout<<"Insertion"<<endl<<endl;
+	cout<<"****************************************************"<<endl;
+	for(int i = 0; i < nameNum; i++)
+	{
+		Ts.Insert(Name[i], strlen(Name[i]));
+		cout<<Name[i]<<" "<<i<<endl;
+	}
+	cout<<"****************************************************"<<endl<<endl<<endl;
+	cout<<"Recanting"<<endl;
+	cout<<"****************************************************"<<endl;
+	bool myVal = false;
+	for(int i = 0; i < nameNum; i++)
+	{
+		myVal = Ts.Value(Name[i], (int)strlen(Name[i]));
+		if(myVal)
+		{
+			cout<<Name[i]<<" ====>> FOUND_________"<<endl;
+		}
+		else
+		{
+			cout<<Name[i]<<" ===>> NOT_________FOUND"<<endl;
+		}
+	}
+	cout<<"****************************************************"<<endl<<endl<<endl;
+	cout<<"Finding Similarity"<<endl;
+	cout<<"****************************************************"<<endl;
+	TTrieSet<char>::SimilarityRetVal nodeArr;
+
+	cout<<"Finding for 'Akh' "<<endl;
+	nodeArr = Ts.GetAllMatches((char*)"Akh", 3);
+	for(int i = 0; i < (int)nodeArr.size(); i++)
+	{
+		cout<<nodeArr[i].Array<<endl;
+	}
+
+	nodeArr.clear();
+	cout<<"Finding for 'Po' "<<endl;
+	nodeArr = Ts.GetAllMatches((char*)"Po", 2);
+	for(int i = 0; i < (int)nodeArr.size(); i++)
+	{
+		cout<<nodeArr[i].Array<<endl;
+	}
+	cout<<"****************************************************"<<endl<<endl<<endl;
+}
+
 int main()
 {
 	//TestIndexTree();
-	TestTrieMap();
+	//TestTrieMap();
+	TestTrieSet();
 	return 0;
 }
 

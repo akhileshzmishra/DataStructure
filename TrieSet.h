@@ -247,6 +247,8 @@ class TTrieSet
 	_Node                       m_Head;
 	int                         m_iDepth;
 public:
+	typedef std::vector<_NodeSetVal >  SimilarityRetVal;
+
 	TTrieSet():
 	m_iDepth(1)
 	{
@@ -386,7 +388,7 @@ public:
 		}
 		return true;
 	}
-	std::vector<_NodeSetVal > GetAllMatches(T* tArray, int ArrSize)
+	SimilarityRetVal GetAllMatches(T* tArray, int ArrSize)
 	{
 		std::vector<_NodeSetVal> result;
 		if(ArrSize > m_iDepth)
