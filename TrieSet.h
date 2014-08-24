@@ -12,50 +12,53 @@ class TSNodeItr;
 template<class T>
 class TSNode
 {
-	typedef std::map<T, TSNode<T>* >             ChildList;
-	typedef typename ChildList::iterator         ChildItr;
-	typedef std::pair<T, TSNode<T>* >            ChildPair;
+	typedef TSNode<T>                            _Class;
+	typedef std::map<T, _Class* >                _ChildList;
+	typedef typename _ChildList::iterator        _ChildItr;
+	typedef std::pair<T, _Class* >               _ChildPair;
 
-	ChildList                                   mChildList;
-	T                                           mKey;
-	bool                                        mIsALeaf;
+	_ChildList                                   m_ChildList;
+	T                                            m_Key;
+	bool                                         m_bLeaf;
 	friend class TSNodeItr<T>;
 
 public:
 	TSNode():
-    mIsALeaf(false)	   
+    m_bLeaf(false)
 	{
 	}
+
+
 	TSNode(T key):
-	mKey(key),
-    mIsALeaf(false)	   
+	m_Key(key),
+    m_bLeaf(false)
 	{
 	}
 	
 
 	~TSNode()              {}
-	T& Key()               {return mKey;}
-	bool IsLeafNode()      {return mIsALeaf;}
-	int NoChildren()       {return (int) mChildList.size();}
+	T& Key()               {return m_Key;}
+	bool IsLeafNode()      {return m_bLeaf;}
+	int NoChildren()       {return (int) m_ChildList.size();}
 
 
-	TSNode<T>* GetChild(T data)		
+	_Class* GetChild(T data)
 	{
-		ChildItr itr = mChildList.find(data);
-		if(itr != mChildList.end())
+		_ChildItr itr = m_ChildList.find(data);
+		if(itr != m_ChildList.end())
 		{
 			return itr->second;
 		}
 		return 0;
 	}
 
-	TSNode<T>* InsertChild(T key)
+	_Class* InsertChild(T key)
 	{
-		ChildItr itr = mChildList.find(key);
-		if(itr == mChildList.end())
+		_ChildItr itr = m_ChildList.find(key);
+		if(itr == m_ChildList.end())
 		{
-			TSNode<T>* ptr = new TSNode<T>(key) ;
-			mChildList.insert(ChildPair(key, ptr ));   
+			_Class* ptr = new _Class(key) ;
+			m_ChildList.insert(_ChildPair(key, ptr ));
 			return ptr;
 		}
 		else
@@ -66,30 +69,30 @@ public:
 
 	void DeleteKey(T Key)
 	{
-	    ChildItr itr = mChildList.find(Key);
-		if(itr != mChildList.end())
+	    _ChildItr itr = m_ChildList.find(Key);
+		if(itr != m_ChildList.end())
 		{
 			delete itr->second;
-			mChildList.erase(itr);
+			m_ChildList.erase(itr);
 		}
 	}
 
 	void SetLeafNode(bool set)
 	{
-		mIsALeaf = true;
+		m_bLeaf = true;
 	}
 	void FlushData()
 	{
-	    mIsALeaf = false;
+	    m_bLeaf = false;
 	}
 private:
-	bool IsEnd(const ChildItr& itr)
+	bool IsEnd(const _ChildItr& itr)
 	{
-		return (itr == mChildList.end());
+		return (itr == m_ChildList.end());
 	}
-	bool IsBegin(const ChildItr& itr)
+	bool IsBegin(const _ChildItr& itr)
 	{
-		return (itr == mChildList.begin());
+		return (itr == m_ChildList.begin());
 	}
 
 };
@@ -97,53 +100,55 @@ private:
 template<class T>
 class TSNodeItr
 {
-	TSNode<T>*                           mHead;
-	typedef typename TSNode<T>::ChildItr BaseItr;
-	BaseItr                              mItr;
+	typedef TSNode<T>                          _Node;
+	typedef typename _Node::_ChildItr          _BaseItr;
+
+	_Node*                                     m_pHead;
+	_BaseItr                                   m_Itr;
 public:
-	TSNodeItr(TSNode<T>* head):
-    mHead(head)
+	TSNodeItr(_Node* head):
+	m_pHead(head)
 	{
-		if(mHead)
+		if(m_pHead)
 		{
-			mItr = mHead->mChildList.begin();
+			m_Itr = m_pHead->m_ChildList.begin();
 		}
 	}
 	bool IsEnd()
 	{
-		if(mHead)
+		if(m_pHead)
 		{
-			return mHead->IsEnd(mItr);
+			return m_pHead->IsEnd(m_Itr);
 		}
 		return false;
 	}
 	bool IsBegin()
 	{
-		if(mHead)
+		if(m_pHead)
 		{
-			return mHead->IsBegin(mItr);
+			return m_pHead->IsBegin(m_Itr);
 		}
 		return false;
 	}
 	void operator ++()
 	{
-		mItr++;
+		m_Itr++;
 	}
 	void operator ++(int)
 	{
-		mItr++;
+		m_Itr++;
 	}
 	void operator --()
 	{
-		mItr--;
+		m_Itr--;
 	}
 	void operator --(int)
 	{
-		mItr--;
+		m_Itr--;
 	}
-	TSNode<T>* Value()
+	_Node* Value()
 	{
-		return mItr->second;
+		return m_Itr->second;
 	}
 
 
@@ -215,14 +220,16 @@ struct TSetValue
 template<class T>
 struct TSStackNode
 {
-	TSNode<T>* Node;
-	int        Level;
+	typedef TSNode<T>           _Node;
+
+	_Node*                      Node;
+	int                         Level;
 	TSStackNode():
 	Node(0),
 	Level(0)
 	{
 	}
-	TSStackNode(TSNode<T>* node, int level):
+	TSStackNode(_Node* node, int level):
 	Node(node),
 	Level(level)
 	{
@@ -232,11 +239,16 @@ struct TSStackNode
 template<class T>
 class TTrieSet
 {
-	TSNode<T>   mHead;
-	int         mDepth;
+	typedef TSNode<T>           _Node;
+	typedef TSNodeItr<T>        _NodeItr;
+	typedef TSetValue<T>        _NodeSetVal;
+	typedef TSStackNode<T>      _StackNode;
+
+	_Node                       m_Head;
+	int                         m_iDepth;
 public:
 	TTrieSet():
-	mDepth(1)
+	m_iDepth(1)
 	{
 	}
 	~TTrieSet()
@@ -245,7 +257,7 @@ public:
 	}
 	void Insert(T* tArray, int ArrSize)
 	{
-		TSNode<T>*  ptr  = &mHead;
+		_Node*  ptr  = &m_Head;
 		int depth = 1;
 		for(int i = 0; i < ArrSize; i++)
 		{
@@ -263,16 +275,16 @@ public:
 		{
 			(ptr)->SetLeafNode(true);
 		}
-		if(depth > mDepth)
+		if(depth > m_iDepth)
 		{
-			mDepth = depth;
+			m_iDepth = depth;
 		}
 
 	}
 
 	bool Value(T* tArray, int ArrSize)
 	{
-		if(ArrSize > mDepth)
+		if(ArrSize > m_iDepth)
 		{
 			return 0;
 		}
@@ -281,8 +293,8 @@ public:
 			return 0;
 		}
 
-		TSNode<T>*  ptr  = &mHead;
-		TSNode<T>*& ref = ptr;
+		_Node*  ptr  = &m_Head;
+		_Node*& ref = ptr;
 		for(int i = 0; i < ArrSize; i++)
 		{
 			if(ref)
@@ -301,11 +313,11 @@ public:
 	}
 	int MaxDepth()
 	{
-		return mDepth;
+		return m_iDepth;
 	}
 	bool Delete(T* tArray, int ArrSize)
 	{
-		if(ArrSize > mDepth)
+		if(ArrSize > m_iDepth)
 		{
 			return false;
 		}
@@ -313,8 +325,8 @@ public:
 		{
 			return false;
 		}
-		TSNode<T>* ref = &mHead;
-		std::stack<TSNode<T>* > Stack;
+		_Node* ref = &m_Head;
+		std::stack<_Node* > Stack;
 		for(int i = 0; i < ArrSize; i++)
 		{
 			if(ref)
@@ -333,16 +345,16 @@ public:
 			{
 				return false;
 			}
-			TSNode<T>* nodeup = Stack.top();
+			_Node* nodeup = Stack.top();
 			Stack.pop();
 			T key = nodeup->Key();
 			while(Stack.size() > 0)
 			{
-				TSNode<T>* node = Stack.top();
+				_Node* node = Stack.top();
 				Stack.pop();
 				if(node)
 				{
-					TSNode<T>* child = node->GetChild(key);
+					_Node* child = node->GetChild(key);
 					if(child)
 					{
 						if(child->NoChildren() == 0)
@@ -364,10 +376,10 @@ public:
 		}
 		return true;
 	}
-	std::vector<TSetValue<T>> GetAllMatches(T* tArray, int ArrSize)
+	std::vector<_NodeSetVal > GetAllMatches(T* tArray, int ArrSize)
 	{
-		std::vector<TSetValue<T>> result;
-		if(ArrSize > mDepth)
+		std::vector<_NodeSetVal> result;
+		if(ArrSize > m_iDepth)
 		{
 			return result;
 		}
@@ -375,12 +387,12 @@ public:
 		{
 			return result;
 		}
-		if(mDepth > 0)
+		if(m_iDepth > 0)
 		{
-			TSetValue<T> newVal(mDepth);
+			_NodeSetVal newVal(m_iDepth);
 
 			memcpy(newVal.Array, tArray, ArrSize);
-			TSNode<T>* ref = &mHead;
+			TSNode<T>* ref = &m_Head;
 			for(int i = 0; i < ArrSize; i++)
 			{
 				if(ref)
@@ -394,12 +406,12 @@ public:
 			}
 			if(ref)
 			{
-				std::stack<TSStackNode<T> > Stack;
-				Stack.push(TSStackNode<T>(ref, 0));
+				std::stack<_StackNode > Stack;
+				Stack.push(_StackNode(ref, 0));
 				int pos = ArrSize - 1;
 				while(Stack.size() > 0)
 				{
-					TSStackNode<T> node = Stack.top();
+					_StackNode node = Stack.top();
 					Stack.pop();
 					if((node.Node->IsLeafNode()) || (node.Node->NoChildren() == 0))	
 					{
@@ -410,10 +422,10 @@ public:
 					else
 					{
 						newVal[pos + node.Level] = node.Node->Key();
-						TSNodeItr<T> itr(node.Node);
+						_NodeItr itr(node.Node);
 						while(!itr.IsEnd())
 						{
-							Stack.push(TSStackNode<T>(itr.Value(), node.Level + 1));
+							Stack.push(_StackNode(itr.Value(), node.Level + 1));
 							itr++;
 						}
 					}
@@ -425,6 +437,7 @@ public:
 			return result;
 
 		}
+		return result;
 	}
 
 
@@ -432,9 +445,9 @@ public:
 private:
 	void DeleteAllItems()
 	{
-		std::queue<TSNode<T>* > Q;
+		std::queue<_Node* > Q;
 
-		TSNodeItr<T> itr(&mHead);
+		_NodeItr itr(&m_Head);
 		while(!itr.IsEnd())
 		{
 			Q.push(itr.Value());
@@ -443,9 +456,9 @@ private:
 
 		while(Q.size() > 0)
 		{
-			TSNode<T>* node = Q.front();
+			_Node* node = Q.front();
 			Q.pop();
-			TSNodeItr<T> itr1(node);
+			_NodeItr itr1(node);
 			while(!itr1.IsEnd())
 			{
 				Q.push(itr1.Value());
