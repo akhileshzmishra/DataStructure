@@ -9,24 +9,25 @@ class TNodeItr;
 template<class T, class D>
 class TNode
 {
-	typedef std::map<T, TNode<T,D>* >           _ChildList;
-	typedef typename _ChildList::iterator       _ChildItr;
-	typedef std::pair<T, TNode<T,D>* >          _ChildPair;
 	typedef TNode<T, D>                         _Class;
+	typedef std::map<T, _Class* >               _ChildList;
+	typedef typename _ChildList::iterator       _ChildItr;
+	typedef std::pair<T, _Class* >              _ChildPair;
 
-	_ChildList                                   mChildList;
-	T                                           mKey;
-	D*                                          mNodeValue;
+
+	_ChildList                                  m_ChildList;
+	T                                           m_Key;
+	D*                                          m_pNodeValue;
 	friend class TNodeItr<T, D>;
 
 public:
 	TNode():
-	mNodeValue(0)
+	m_pNodeValue(0)
 	{
 	}
 	TNode(T Key):
-	mKey(Key),
-	mNodeValue(0)
+	m_Key(Key),
+	m_pNodeValue(0)
 	{
 	}
 
@@ -36,16 +37,16 @@ public:
 		FlushData();
 	}
 
-	D* Value()             {return mNodeValue;}
-	T& Key()               {return mKey;}
-	bool IsLeafNode()      {return (mNodeValue != 0);}
-	int NoChildren()       {return (int) mChildList.size();}
+	D* Value()             {return m_pNodeValue;}
+	T& Key()               {return m_Key;}
+	bool IsLeafNode()      {return (m_pNodeValue != 0);}
+	int NoChildren()       {return (int) m_ChildList.size();}
 
 
 	_Class* GetChild(T key)
 	{
-		_ChildItr itr = mChildList.find(key);
-		if(itr != mChildList.end())
+		_ChildItr itr = m_ChildList.find(key);
+		if(itr != m_ChildList.end())
 		{
 			return itr->second;
 		}
@@ -54,11 +55,11 @@ public:
 
 	_Class* InsertChild(T key)
 	{
-		_ChildItr itr = mChildList.find(key);
-		if(itr == mChildList.end())
+		_ChildItr itr = m_ChildList.find(key);
+		if(itr == m_ChildList.end())
 		{
 			TNode<T, D>* ptr = new TNode<T, D>(key);
-			mChildList.insert(_ChildPair(key, ptr ));
+			m_ChildList.insert(_ChildPair(key, ptr ));
 			return ptr;
 		}
 		else
@@ -69,37 +70,37 @@ public:
 
 	void DeleteKey(T Key)
 	{
-	    _ChildItr itr = mChildList.find(Key);
-		if(itr != mChildList.end())
+	    _ChildItr itr = m_ChildList.find(Key);
+		if(itr != m_ChildList.end())
 		{
 			delete itr->second;
-			mChildList.erase(itr);
+			m_ChildList.erase(itr);
 		}
 	}
 
 	void SetValue(D data)
 	{
 		FlushData();
-		mNodeValue = new D();
-		*mNodeValue = data;
+		m_pNodeValue = new D();
+		*m_pNodeValue = data;
 	}
 
 	void FlushData()
 	{
-	    if(mNodeValue)
+	    if(m_pNodeValue)
 	    {
-	    	delete mNodeValue;
-	    	mNodeValue = 0;
+	    	delete m_pNodeValue;
+	    	m_pNodeValue = 0;
 	    }
 	}
 private:
 	bool __IsEnd(const _ChildItr& itr)
 	{
-		return (itr == mChildList.end());
+		return (itr == m_ChildList.end());
 	}
 	bool __IsBegin(const _ChildItr& itr)
 	{
-		return (itr == mChildList.begin());
+		return (itr == m_ChildList.begin());
 	}
 
 };
@@ -108,58 +109,58 @@ template<class T, class D>
 class TNodeItr
 {
 	typedef TNode<T, D>                      _Node;
-	typedef typename TNode<T, D>::_ChildItr  _BaseItr;
+	typedef typename _Node::_ChildItr        _BaseItr;
 
-	_Node*                                   mHead;
-	_BaseItr                                 mItr;
+	_Node*                                   m_pHead;
+	_BaseItr                                 m_Itr;
 public:
 	TNodeItr(_Node* head):
-    mHead(head)
+	m_pHead(head)
 	{
-		if(mHead)
+		if(m_pHead)
 		{
-			mItr = mHead->mChildList.begin();
+			m_Itr = m_pHead->m_ChildList.begin();
 		}
 	}
 	bool IsEnd()
 	{
-		if(mHead)
+		if(m_pHead)
 		{
-			return mHead->__IsEnd(mItr);
+			return m_pHead->__IsEnd(m_Itr);
 		}
 		return false;
 	}
 	bool IsBegin()
 	{
-		if(mHead)
+		if(m_pHead)
 		{
-			return mHead->__IsBegin(mItr);
+			return m_pHead->__IsBegin(m_Itr);
 		}
 		return false;
 	}
 	void operator ++()
 	{
-		mItr++;
+		m_Itr++;
 	}
 	void operator ++(int)
 	{
-		mItr++;
+		m_Itr++;
 	}
 	void operator --()
 	{
-		mItr--;
+		m_Itr--;
 	}
 	void operator --(int)
 	{
-		mItr--;
+		m_Itr--;
 	}
-	TNode<T, D>* Value()
+	_Node* Value()
 	{
-		return mItr->second;
+		return m_Itr->second;
 	}
 	T Key()
 	{
-		return mItr->first;
+		return m_Itr->first;
 	}
 
 
@@ -168,11 +169,14 @@ public:
 template<class T, class D>
 class TTrieMap
 {
-	TNode<T, D>   mHead;
-	int           mDepth;
+	typedef TNode<T, D>            _Node;
+	typedef TNodeItr<T, D>         _NodeItr;
+
+	_Node                          m_Head;
+	int                            m_iDepth;
 public:
 	TTrieMap():
-	mDepth(1)
+	m_iDepth(1)
 	{
 	}
 
@@ -183,7 +187,7 @@ public:
 
 	void Insert(T* tArray, int ArrSize, D Value)
 	{
-		TNode<T, D>* ref = &mHead;
+		_Node* ref = &m_Head;
 		int depth = 1;
 		for(int i = 0; i < ArrSize; i++)
 		{
@@ -201,16 +205,16 @@ public:
 		{
 			ref->SetValue(Value);
 		}
-		if(depth > mDepth)
+		if(depth > m_iDepth)
 		{
-			mDepth = depth;
+			m_iDepth = depth;
 		}
 
 	}
 
 	D* Value(T* tArray, int ArrSize)
 	{
-		if(ArrSize > mDepth)
+		if(ArrSize > m_iDepth)
 		{
 			return 0;
 		}
@@ -218,7 +222,7 @@ public:
 		{
 			return 0;
 		}
-		TNode<T, D>* ref = &mHead;
+		_Node* ref = &m_Head;
 		for(int i = 0; i < ArrSize; i++)
 		{
 			if(ref)
@@ -242,17 +246,18 @@ public:
 
 	int MaxDepth()
 	{
-		return mDepth;
+		return m_iDepth;
 	}
 
 	void Clear()
 	{
 		__DeleteAllItems();
+		m_iDepth = 1;
 	}
 
 	bool Delete(T* tArray, int ArrSize)
 	{
-		if(ArrSize > mDepth)
+		if(ArrSize > m_iDepth)
 		{
 			return false;
 		}
@@ -260,8 +265,8 @@ public:
 		{
 			return false;
 		}
-		TNode<T, D>* ref = &mHead;
-		std::stack<TNode<T, D>* > Stack;
+		_Node* ref = &m_Head;
+		std::stack<_Node* > Stack;
 		for(int i = 0; i < ArrSize; i++)
 		{
 			if(ref)
@@ -284,16 +289,16 @@ public:
 			{
 				ref->FlushData();
 			}
-			TNode<T, D>* nodeup = Stack.top();
+			_Node* nodeup = Stack.top();
 			Stack.pop();
 			T key = nodeup->Key();
 			while(Stack.size() > 0)
 			{
-				TNode<T, D>* node = Stack.top();
+				_Node* node = Stack.top();
 				Stack.pop();
 				if(node)
 				{
-					TNode<T, D>* child = node->GetChild(key);
+					_Node* child = node->GetChild(key);
 					if(child)
 					{
 						if(child->NoChildren() == 0)
@@ -318,9 +323,9 @@ public:
 private:
 	void __DeleteAllItems()
 	{
-		std::queue<TNode<T, D>* > Q;
+		std::queue<_Node* > Q;
 
-		TNodeItr<T, D> itr(&mHead);
+		_NodeItr itr(&m_Head);
 		while(!itr.IsEnd())
 		{
 			Q.push(itr.Value());
@@ -329,9 +334,9 @@ private:
 
 		while(Q.size() > 0)
 		{
-			TNode<T, D>* node = Q.front();
+			_Node* node = Q.front();
 			Q.pop();
-			TNodeItr<T, D> itr1(node);
+			_NodeItr itr1(node);
 			while(!itr1.IsEnd())
 			{
 				Q.push(itr1.Value());
