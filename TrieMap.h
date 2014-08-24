@@ -9,11 +9,12 @@ class TNodeItr;
 template<class T, class D>
 class TNode
 {
-	typedef std::map<T, TNode<T,D>* >           ChildList;
-	typedef typename ChildList::iterator        ChildItr;
-	typedef std::pair<T, TNode<T,D>* >          ChildPair;
+	typedef std::map<T, TNode<T,D>* >           _ChildList;
+	typedef typename _ChildList::iterator       _ChildItr;
+	typedef std::pair<T, TNode<T,D>* >          _ChildPair;
+	typedef TNode<T, D>                         _Class;
 
-	ChildList                                   mChildList;
+	_ChildList                                   mChildList;
 	T                                           mKey;
 	D*                                          mNodeValue;
 	friend class TNodeItr<T, D>;
@@ -41,9 +42,9 @@ public:
 	int NoChildren()       {return (int) mChildList.size();}
 
 
-	TNode<T,D>* GetChild(T key)
+	_Class* GetChild(T key)
 	{
-		ChildItr itr = mChildList.find(key);
+		_ChildItr itr = mChildList.find(key);
 		if(itr != mChildList.end())
 		{
 			return itr->second;
@@ -51,13 +52,13 @@ public:
 		return 0;
 	}
 
-	TNode<T,D>* InsertChild(T key)
+	_Class* InsertChild(T key)
 	{
-		ChildItr itr = mChildList.find(key);
+		_ChildItr itr = mChildList.find(key);
 		if(itr == mChildList.end())
 		{
 			TNode<T, D>* ptr = new TNode<T, D>(key);
-			mChildList.insert(ChildPair(key, ptr ));
+			mChildList.insert(_ChildPair(key, ptr ));
 			return ptr;
 		}
 		else
@@ -68,7 +69,7 @@ public:
 
 	void DeleteKey(T Key)
 	{
-	    ChildItr itr = mChildList.find(Key);
+	    _ChildItr itr = mChildList.find(Key);
 		if(itr != mChildList.end())
 		{
 			delete itr->second;
@@ -92,11 +93,11 @@ public:
 	    }
 	}
 private:
-	bool __IsEnd(const ChildItr& itr)
+	bool __IsEnd(const _ChildItr& itr)
 	{
 		return (itr == mChildList.end());
 	}
-	bool __IsBegin(const ChildItr& itr)
+	bool __IsBegin(const _ChildItr& itr)
 	{
 		return (itr == mChildList.begin());
 	}
@@ -106,11 +107,13 @@ private:
 template<class T, class D>
 class TNodeItr
 {
-	TNode<T, D>*                           mHead;
-	typedef typename TNode<T, D>::ChildItr BaseItr;
-	BaseItr                                mItr;
+	typedef TNode<T, D>                      _Node;
+	typedef typename TNode<T, D>::_ChildItr  _BaseItr;
+
+	_Node*                                   mHead;
+	_BaseItr                                 mItr;
 public:
-	TNodeItr(TNode<T, D>* head):
+	TNodeItr(_Node* head):
     mHead(head)
 	{
 		if(mHead)
