@@ -2,7 +2,7 @@
 #define _TRIE___MAP__
 
 #include <map>
-
+#include <stack>
 template<class T, class D>
 class TNodeItr;
 
@@ -10,31 +10,34 @@ template<class T, class D>
 class TNode
 {
 	typedef std::map<T, TNode<T,D>* >           ChildList;
-	typename typedef ChildList::iterator        ChildItr;
+	typedef typename ChildList::iterator        ChildItr;
 	typedef std::pair<T, TNode<T,D>* >          ChildPair;
 
 	ChildList                                   mChildList;
 	T                                           mKey;
-	D                                           mNodeValue;
-	bool                                        mIsALeaf;
+	D*                                          mNodeValue;
 	friend class TNodeItr<T, D>;
 
 public:
 	TNode():
-    mIsALeaf(false)
+	mNodeValue(0)
 	{
 	}
 	TNode(T Key):
 	mKey(Key),
-	mIsALeaf(false)
+	mNodeValue(0)
 	{
 	}
 
 
-	~TNode()               {}
-	D& Value()             {return mNodeValue;}
+	~TNode()
+	{
+		FlushData();
+	}
+
+	D* Value()             {return mNodeValue;}
 	T& Key()               {return mKey;}
-	bool IsLeafNode()      {return mIsALeaf;}
+	bool IsLeafNode()      {return (mNodeValue != 0);}
 	int NoChildren()       {return (int) mChildList.size();}
 
 
@@ -73,21 +76,27 @@ public:
 		}
 	}
 
-	void SetLeafNode(D data)
+	void SetValue(D data)
 	{
-		mNodeValue = data;
-		mIsALeaf = true;
+		FlushData();
+		mNodeValue = new D();
+		*mNodeValue = data;
 	}
+
 	void FlushData()
 	{
-	    mIsALeaf = false;
+	    if(mNodeValue)
+	    {
+	    	delete mNodeValue;
+	    	mNodeValue = 0;
+	    }
 	}
 private:
-	bool IsEnd(const ChildItr& itr)
+	bool __IsEnd(const ChildItr& itr)
 	{
 		return (itr == mChildList.end());
 	}
-	bool IsBegin(const ChildItr& itr)
+	bool __IsBegin(const ChildItr& itr)
 	{
 		return (itr == mChildList.begin());
 	}
@@ -113,7 +122,7 @@ public:
 	{
 		if(mHead)
 		{
-			return mHead->IsEnd(mItr);
+			return mHead->__IsEnd(mItr);
 		}
 		return false;
 	}
@@ -121,7 +130,7 @@ public:
 	{
 		if(mHead)
 		{
-			return mHead->IsBegin(mItr);
+			return mHead->__IsBegin(mItr);
 		}
 		return false;
 	}
@@ -163,10 +172,12 @@ public:
 	mDepth(1)
 	{
 	}
+
 	~TTrieMap()
 	{
-		DeleteAllItems();
+		__DeleteAllItems();
 	}
+
 	void Insert(T* tArray, int ArrSize, D Value)
 	{
 		TNode<T, D>* ref = &mHead;
@@ -185,7 +196,7 @@ public:
 		}
 		if(ref)
 		{
-			ref->SetLeafNode(Value);
+			ref->SetValue(Value);
 		}
 		if(depth > mDepth)
 		{
@@ -220,15 +231,22 @@ public:
 		{
 			if(ref->IsLeafNode())
 			{
-				return &(ref->Value());
+				return (ref->Value());
 			}
 		}
 		return 0;
 	}
+
 	int MaxDepth()
 	{
 		return mDepth;
 	}
+
+	void Clear()
+	{
+		__DeleteAllItems();
+	}
+
 	bool Delete(T* tArray, int ArrSize)
 	{
 		if(ArrSize > mDepth)
@@ -258,6 +276,10 @@ public:
 			if(!ref->IsLeafNode())
 			{
 				return false;
+			}
+			else
+			{
+				ref->FlushData();
 			}
 			TNode<T, D>* nodeup = Stack.top();
 			Stack.pop();
@@ -291,7 +313,7 @@ public:
 		return true;
 	}
 private:
-	void DeleteAllItems()
+	void __DeleteAllItems()
 	{
 		std::queue<TNode<T, D>* > Q;
 

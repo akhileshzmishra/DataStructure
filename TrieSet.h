@@ -13,7 +13,7 @@ template<class T>
 class TSNode
 {
 	typedef std::map<T, TSNode<T>* >             ChildList;
-	typename typedef ChildList::iterator         ChildItr;
+	typedef typename ChildList::iterator         ChildItr;
 	typedef std::pair<T, TSNode<T>* >            ChildPair;
 
 	ChildList                                   mChildList;
@@ -185,7 +185,7 @@ struct TSetValue
 			SizeArray = other.SizeArray;
 		}
 	}
-	TSetValue& operator = (const TSetValue<T>& other)
+	TSetValue<T>& operator = (const TSetValue<T>& other)
 	{
 		if(this == &other)
 		{
@@ -203,6 +203,7 @@ struct TSetValue
 			memcpy(Array, other.Array, sizeof(T)*other.SizeArray);
 			SizeArray = other.SizeArray;
 		}
+		return *this;
 
 	}
 	T& operator [](int x)
@@ -281,7 +282,7 @@ public:
 		}
 
 		TSNode<T>*  ptr  = &mHead;
-		TNode<T, D>*& ref = ptr;
+		TSNode<T>*& ref = ptr;
 		for(int i = 0; i < ArrSize; i++)
 		{
 			if(ref)
