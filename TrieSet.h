@@ -86,11 +86,11 @@ public:
 	    m_bLeaf = false;
 	}
 private:
-	bool IsEnd(const _ChildItr& itr)
+	bool __IsEnd(const _ChildItr& itr)
 	{
 		return (itr == m_ChildList.end());
 	}
-	bool IsBegin(const _ChildItr& itr)
+	bool __IsBegin(const _ChildItr& itr)
 	{
 		return (itr == m_ChildList.begin());
 	}
@@ -118,7 +118,7 @@ public:
 	{
 		if(m_pHead)
 		{
-			return m_pHead->IsEnd(m_Itr);
+			return m_pHead->__IsEnd(m_Itr);
 		}
 		return false;
 	}
@@ -126,7 +126,7 @@ public:
 	{
 		if(m_pHead)
 		{
-			return m_pHead->IsBegin(m_Itr);
+			return m_pHead->__IsBegin(m_Itr);
 		}
 		return false;
 	}
@@ -251,10 +251,14 @@ public:
 	m_iDepth(1)
 	{
 	}
+
+
 	~TTrieSet()
 	{
-		DeleteAllItems();
+		__DeleteAllItems();
 	}
+
+
 	void Insert(T* tArray, int ArrSize)
 	{
 		_Node*  ptr  = &m_Head;
@@ -280,6 +284,12 @@ public:
 			m_iDepth = depth;
 		}
 
+	}
+
+
+	void Clear()
+	{
+		__DeleteAllItems();
 	}
 
 	bool Value(T* tArray, int ArrSize)
@@ -443,7 +453,7 @@ public:
 
 
 private:
-	void DeleteAllItems()
+	void __DeleteAllItems()
 	{
 		std::queue<_Node* > Q;
 
