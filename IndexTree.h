@@ -1,14 +1,9 @@
 #ifndef _INDEX_TREE_H_
 #define _INDEX_TREE_H_
-#define __DEBUG_PRINT_INDEX_TREE_
-
 
 #include <vector>
-#include <queue>
-#ifdef __DEBUG_PRINT_INDEX_TREE_
 #include <iostream>
-#include <math.h>
-#endif
+#include <stack>
 
 using namespace std;
 namespace IndexTreeSpace
@@ -164,11 +159,7 @@ public:
 		{
 			return false;
 		}
-		int mid = 0;
-		if(m_iSize > 2)
-		{
-			mid = m_iSize/2;
-		}
+		int mid = m_iSize/2;
 		IndexPocket<T>* newPocket = new IndexPocket<T>(m_iCapacity, m_bAutoEnhance);
 		int index = 0;
 		for(int i = mid + 1; i < m_iSize; i++)
@@ -544,7 +535,7 @@ public:
 		return false;
 	}
 
-	bool Value(int index, IndexTreeNode<T>*& ret)
+	bool Value(int index, _Class*& ret)
 	{
 		if(IsLeaf())
 		{
@@ -567,43 +558,7 @@ public:
 		return __GetChild(absoluteIdx);
 	}
 
-	void Print()
-	{
-#ifdef __DEBUG_PRINT_INDEX_TREE_
-		if(IsLeaf())
-		{
-			T* val = 0;
-			for(int i = 0; i < m_ChildUnion.m_pPocket->Size(); i++)
-			{
-				if(Value(i, val))
-				{
-					cout<<"["<< *val <<"]  ";
-				}
-				else
-				{
-					cout<<"[ NF ]";
-				}
-			}
-			cout<<endl;
-		}
-		else
-		{
-			_Class* val = 0;
-			for(int i = 0; i < m_ChildUnion.m_ChildList->Size(); i++)
-			{
-				if(Value(i, val))
-				{
-					cout<<"NODE( "<< val->Size()<<" )  ";
-				}
-				else
-				{
-					cout<<"NODE( NF ) ";
-				}
-			}
-			cout<<endl;
-		}
-#endif
-	}
+	
 
 
 
@@ -680,6 +635,8 @@ private:
 		{
 			return false;
 		}
+
+		_ChildNode* node = m_ChildUnion.m_ChildList->Value(index);
 
 		if( m_ChildUnion.m_ChildList->Delete(index))
 		{
@@ -819,15 +776,21 @@ template<class T>
 class CIndexTree
 {
 	typedef IndexTreeNode<T>           _Node;
+	typedef std::stack<_Node*>         _StackNode;
 	_Node*                             m_pHead;
 	int                                m_iPocketSize;
 	int                                m_iOrder;
 public:
 	CIndexTree(int pocketSize, int Order):
     m_pHead(new _Node(pocketSize,true)),
-	m_iPocketSize(pocketSize > 0? pocketSize: DefaultPocketSize),
-	m_iOrder(Order > 0? Order: DefaultPocketSize)
+	m_iPocketSize(pocketSize),
+	m_iOrder(Order)
 	{
+	}
+
+	~CIndexTree()
+	{
+		__DeleteAll(false);
 	}
 
 	int Size()
@@ -837,6 +800,11 @@ public:
 			return m_pHead->Size();
 		}
 		return 0;
+	}
+
+	bool Clear()
+	{
+		return __DeleteAll();
 	}
 
 	bool Insert(int index, T Data)
@@ -945,76 +913,6 @@ public:
 			return false;
 		}
 		return pItr->Value(index, val);
-	}
-
-	void Print()
-	{
-#ifdef __DEBUG_PRINT_INDEX_TREE_
-		typedef std::queue<_Node*> NQ;
-		NQ nq;
-		nq.push(m_pHead);
-		int level = 0;
-		int elems = 1;
-		bool toContinue = true;
-		int leafNodes = 0;
-		int internalNodes = 0;
-		while(toContinue)
-		{
-			while(elems > 0)
-			{
-				_Node* n = nq.front();
-				nq.pop();
-				elems--;
-				if(n->IsLeaf())
-				{
-					leafNodes++;
-				}
-				else
-				{
-					internalNodes++;
-				}
-				cout<<"+++++++++++++++++++++++"<<endl;
-				cout<<"Level : "<<level<<endl;
-				n->Print();
-				cout<<"+++++++++++++++++++++++"<<endl;
-				if(!n->IsLeaf())
-				{
-					_Node* v = 0;
-					for(int i = 0; i < n->Size(); i++)
-					{
-						if(n->Value(i, v))
-						{
-							nq.push(v);
-						}
-					}
-				}
-			}
-			elems = nq.size();
-			level++;
-			if(elems == 0)
-			{
-				toContinue = false;
-				break;
-			}
-		}
-		cout<<"Order = "<<m_iOrder<<" and PocketSize = "<<m_iPocketSize<<endl;
-		cout<<"Total Elements = "<<Size()<<endl;
-		cout<<"Total Leaf Nodes = "<<leafNodes<<endl;
-		double avdensity = (double)Size()/(double)leafNodes;
-		cout<<"Average Data density = "<<avdensity<<endl;
-		double avFill = ((avdensity/(double)m_iPocketSize))*100.0;
-		cout<<"Average Fill = "<< avFill<<endl;
-		cout<<"Wastage = "<<  (m_iPocketSize - avdensity)*leafNodes<<endl;
-		cout<<"Total internal Nodes = "<<internalNodes<<endl;
-
-		cout<<"________________________________________"<<endl;
-		int idealLeafNodes = Size()/m_iPocketSize;
-		cout<<"Ideally, the leaf nodes be = "<<idealLeafNodes<<endl;
-		double num = log(idealLeafNodes)/log(m_iOrder);
-		double pw = (pow(m_iOrder, num) - 1)/(m_iOrder - 1);
-		cout<<"Ideally, the internal nodes be = "<<(pw)<<endl;
-
-#endif
 	}
 
 private:
@@ -1156,6 +1054,42 @@ private:
 				parent->Delete(pItr->Position());
 			}
 			pItr = parent;
+		}
+		return true;
+	}
+
+	bool __DeleteAll(bool recreateHead = true)
+	{
+		_StackNode sn;
+		sn.push(m_pHead);
+
+		_Node* child = 0;
+		_Node* currNode = 0;
+		while(sn.size() > 0)
+		{
+			currNode = sn.top();
+			sn.pop();
+
+			int childCount = currNode->ChildListSize();
+			for(int i = 0; i < childCount; i++)
+			{
+				if(currNode->Value(i, child))
+				{
+					if(child)
+					{
+						sn.push(child);
+					}
+				}
+			}
+			delete currNode;
+		}
+		if(recreateHead)
+		{
+			m_pHead = new _Node(m_iPocketSize, true);
+		}
+		else
+		{
+			m_pHead = 0;
 		}
 		return true;
 	}
