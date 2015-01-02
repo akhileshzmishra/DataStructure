@@ -914,6 +914,44 @@ public:
 		}
 		return pItr->Value(index, val);
 	}
+	
+		void Print()
+	{
+#ifdef __DEBUG_PRINT_INDEX_TREE_
+		if(IsLeaf())
+		{
+			T* val = 0;
+			for(int i = 0; i < m_ChildUnion.m_pPocket->Size(); i++)
+			{
+				if(Value(i, val))
+				{
+					cout<<"["<< *val <<"]  ";
+				}
+				else
+				{
+					cout<<"[ NF ]";
+				}
+			}
+			cout<<endl;
+		}
+		else
+		{
+			_Class* val = 0;
+			for(int i = 0; i < m_ChildUnion.m_ChildList->Size(); i++)
+			{
+				if(Value(i, val))
+				{
+					cout<<"NODE( "<< val->Size()<<" )  ";
+				}
+				else
+				{
+					cout<<"NODE( NF ) ";
+				}
+			}
+			cout<<endl;
+		}
+#endif
+	}
 
 private:
 	_Node* __GetToLeafNode(int& index)
