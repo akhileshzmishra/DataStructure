@@ -157,18 +157,18 @@ public:
 	{
 		if(!__IndexInsideSize(1))
 		{
-			return false;
+			return 0;
 		}
 		int mid = m_iSize/2;
 		IndexPocket<T>* newPocket = new IndexPocket<T>(m_iCapacity, m_bAutoEnhance);
 		int index = 0;
-		for(int i = mid + 1; i < m_iSize; i++)
+		for(int i = mid; i < m_iSize; i++)
 		{
 			newPocket->m_DataList[index] = m_DataList[i];
 			newPocket->m_iSize++;
 			index++;
 		}
-		m_iSize = mid + 1;
+		m_iSize = mid;
 
 		return newPocket;
 
@@ -636,7 +636,7 @@ private:
 			return false;
 		}
 
-		_ChildNode* node = m_ChildUnion.m_ChildList->Value(index);
+		//_ChildNode* node = m_ChildUnion.m_ChildList->Value(index);
 
 		if( m_ChildUnion.m_ChildList->Delete(index))
 		{
